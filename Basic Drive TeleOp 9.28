@@ -1,0 +1,88 @@
+// Basic Drive Teleop 9.28
+
+package org.firstinspires.ftc.teamcode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.Range;
+
+@TeleOp(name="Steering", group="Iterative Opmode")
+
+public class Steering extends OpMode
+{
+    private DcMotor leftBack;
+    private DcMotor rightBack;
+    private DcMotor leftFront;
+    private DcMotor rightFront;
+
+    @Override
+    public void init() {
+        telemetry.addData("Status", "Initialized");
+
+        // Initialize the hardware variables. Note that the strings used here as parameters
+        // to 'get' must correspond to the names assigned during the robot configuration
+        // step (using the FTC Robot Controller app on the phone).
+        leftBack  = hardwareMap.get(DcMotor.class, "leftBack");
+        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+
+        // Most robots need the motor on one side to be reversed to drive forward
+        // Reverse the motor that runs backwards when connected directly to the battery
+        rightFront.setDirection(DcMotor.Direction.REVERSE);
+        rightBack.setDirection(DcMotor.Direction.REVERSE);
+
+        // Tell the driver that initialization is complete.
+        telemetry.addData("Status", "Initialized");
+    }
+
+    /*
+     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
+     */
+    @Override
+    public void init_loop() {
+
+    }
+
+    @Override
+    public void loop()
+    {
+        double lefty1 = gamepad1.left_stick_y;
+        double leftx1 = gamepad1.left_stick_x;
+        double rightx1 = gamepad1.right_stick_x;
+
+        if (Math.abs(lefty1) > Math.abs(leftx1))
+        {
+            leftFront.setPower(lefty1 * .8);
+            leftBack.setPower(lefty1 * .8);
+            rightFront.setPower (lefty1 * .8);
+            rightBack.setPower(lefty1 * .8);
+        } else if (Math.abs(leftx1) > Math.abs(lefty1))
+        {
+            leftFront.setPower(leftx1 * .8);
+            leftBack.setPower (leftx1 * -.8);
+            rightFront.setPower (leftx1 * -.8);
+            rightBack.setPower(leftx1 * .8);
+        } else {
+            leftFront.setPower(0);
+            leftBack.setPower (0);
+            rightFront.setPower (0);
+            rightBack.setPower(0);
+        }
+        if (Math.abs(rightx1) > .1){
+            leftFront.setPower(rightx1 * .8);
+            leftBack.setPower (rightx1 * .8);
+            rightFront.setPower (rightx1 * -.8);
+            rightBack.setPower(rightx1 * -.8);
+        } else {
+            leftFront.setPower(0);
+            leftBack.setPower (0);
+            rightFront.setPower (0);
+            rightBack.setPower(0);
+        }
+    }
+    @Override
+    public void stop() {
+    }
+
+}
