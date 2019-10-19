@@ -1,0 +1,135 @@
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.Range;
+
+@TeleOp(name="Steering", group="Iterative Opmode")
+public class Steering extends OpMode
+{
+   private DcMotor leftBack;
+   private DcMotor rightBack;
+   private DcMotor leftFront;
+   private DcMotor rightFront;
+
+   @Override
+   public void init() {
+       telemetry.addData("Status", "Initialized");
+
+       // Initialize the hardware variables. Note that the strings used here as parameters
+       // to 'get' must correspond to the names assigned during the robot configuration
+       // step (using the FTC Robot Controller app on the phone).
+       leftBack  = hardwareMap.get(DcMotor.class, "leftBack");
+       rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+       leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+       rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+
+       // Most robots need the motor on one side to be reversed to drive forward
+       // Reverse the motor that runs backwards when connected directly to the battery
+       rightFront.setDirection(DcMotor.Direction.REVERSE);
+       rightBack.setDirection(DcMotor.Direction.REVERSE);
+
+       // Tell the driver that initialization is complete.
+       telemetry.addData("Status", "Initialized");
+   }
+
+   /*
+    * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
+    */
+   @-------------------------------------9+
+   public void init_loop() {
+
+   }
+
+   @Override
+   public void loop()
+   {
+       double lefty1 = gamepad1.left_stick_y;
+       double leftx1 = gamepad1.left_stick_x;
+       double rightx1 = gamepad1.right_stick_x;
+       boolean buttonUp = gamepad1.dpad_up;
+       boolean buttonDown = gamepad1.dpad_down;
+       boolean buttonLeft = gamepad1.dpad_left;
+       boolean buttonRight = gamepad1.dpad_right;
+       boolean lb = gamepad1.left_bumper;
+       boolean rb = gamepad1.right_bumper;
+       double pow = .8;
+
+       if (Math.abs(lefty1) > Math.abs(leftx1))
+       // ^ if stick is moved more up or down than left or right
+       {
+           // moves forward and backwards (max: 80% power)
+           leftFront.setPower(lefty1 * pow);
+           leftBack.setPower(lefty1 * pow);
+           rightFront.setPower (lefty1 * pow);
+           rightBack.setPower(lefty1 * pow);
+       } else if (Math.abs(leftx1) > Math.abs(lefty1))
+       // ^ if stick is moved left or right more than up or down
+       {
+           // moves left and right
+           leftFront.setPower(leftx1 * pow);
+           leftBack.setPower (leftx1 * -pow);
+           rightFront.setPower (leftx1 * -pow);
+           rightBack.setPower(leftx1 * pow);
+       } else {
+           // stops movement
+           leftFront.setPower(0);
+           leftBack.setPower (0);
+           rightFront.setPower (0);
+           rightBack.setPower(0);
+       }
+       if (Math.abs(rightx1) > .1){
+           // turns clockwise and counter-clockwise
+           leftFront.setPower(rightx1 * pow);
+           leftBack.setPower (rightx1 * pow);
+           rightFront.setPower (rightx1 * -pow);
+           rightBack.setPower(rightx1 * -pow);
+       } else {
+           // stops movement
+           leftFront.setPower(0);
+           leftBack.setPower (0);
+           rightFront.setPower (0);
+           rightBack.setPower(0);
+       }
+       // Below: precision (slower) movement
+       pow *= .5;
+       if(buttonUp==true){
+           // slowly moves forwards
+           leftFront.setPower(pow);
+           leftBack.setPower (pow);
+           rightFront.setPower (pow);
+           rightBack.setPower(pow);
+       }
+       else if(buttonDown==true){
+           // slowly moves backwards
+           leftFront.setPower(-pow);
+           leftBack.setPower (-pow);
+           rightFront.setPower (-pow);
+           rightBack.setPower(-pow);
+       }
+       else if(buttonRight==true){
+           // slowly moves right
+           leftFront.setPower(pow);
+           leftBack.setPower (pow);
+           rightFront.setPower (-pow);
+           rightBack.setPower(-pow);
+       }
+       else if(buttonLeft==true){
+           // slowly moves left
+           leftFront.setPower(-pow);
+           leftBack.setPower (-pow);
+           rightFront.setPower (pow);
+           rightBack.setPower(pow);
+       }
+       else {
+           // stops movement
+           leftFront.setPower(0);
+           leftBack.setPower (0);
+           rightFront.setPower (0);
+           rightBack.setPower(0);
+       }
+   }
+   @Override
+   public void stop() {
+   }
+
+}
