@@ -1,0 +1,96 @@
+package org.firstinspires.ftc.robotcontroller.internal.SteelMagnolias;
+
+import com.qualcomm.ftcrobotcontroller.R;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+import com.vuforia.HINT;
+import com.vuforia.Vuforia;
+
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Autonomous(name="Autonomous Code")
+public class AutonomousCode extends LinearOpMode{
+
+    DigitalChannel digitalTouch;  // Hardware Device Object (Touch)
+    ModernRoboticsI2cRangeSensor rangeSensor; // Hardware Device Object (Range)
+    OpticalDistanceSensor odsSensor;
+    private boolean inView = false;
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+
+        // Sensor Declarations:
+
+        // get a reference to our digitalTouch object.
+        digitalTouch = hardwareMap.get(DigitalChannel.class, "sensor_digital");
+        // set the digital channel to input.
+        digitalTouch.setMode(DigitalChannel.Mode.INPUT);
+
+        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "sensor_range");
+        odsSensor = hardwareMap.get(OpticalDistanceSensor.class, "sensor_ods");
+
+        // Vuforia Declarations:
+        VuforiaLocalizer.Parameters params = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);
+        params.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        params.vuforiaLicenseKey = "AXcJnVv/////AAABmY6RSgPMpkU/gTq/ohM7Dp1GRcTjE+uMBhojoC7ZTX6arz9hkiASgNsqnXAtnVHQ/oEqIBLtfRGbX2xTSYe97drbnYkx2RIoDjiYevKtY96gj17+N5sifH2trQuu+/BOicels1rO1WySfkAiVCChif8XO9PaHCwj7WwlEIY1q2crPQvaokLDDHUr/gIroIy+J8cf33a62WaYAofaGmSn9lS20oHPteQ9EDrDDIyFdIBRmp7aLE/7c6HHEwb00m489jZ1Xkj8P3ixFbbpXnXTujjo2vNpoG1w4bzmNFJ2lyMdwJERuUQzNxbrVxsXj6TU4DCoSSNMo87Kgfyf1sC12ODf5N4qVby7346R3bjtpCoW";
+        params.cameraMonitorFeedback = VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES;
+        telemetry.addData("inVIew", inView);
+
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+        VuforiaLocalizer vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        Vuforia.setHint(HINT.HINT_MAX_SIMULTANEOUS_IMAGE_TARGETS, 5);
+
+        VuforiaTrackables beacons = vuforia.loadTrackablesFromAsset("Skystone");
+        beacons.get(0).setName("TargetElement");
+
+        List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+        allTrackables.addAll(beacons);
+
+        beacons.activate();
+        //
+
+        waitForStart();
+
+        // Sensor Data:
+        while (opModeIsActive()) {
+
+            if (digitalTouch.getState() == true) {
+                telemetry.addData("Digital Touch", "Is Not Pressed");
+            } else {
+                telemetry.addData("Digital Touch", "Is Pressed");
+            }
+
+            // Range Sensor Telemetry
+            telemetry.addData("raw ultrasonic", rangeSensor.rawUltrasonic());
+            telemetry.addData("raw optical", rangeSensor.rawOptical());
+            telemetry.addData("cm optical", "%.2f cm", rangeSensor.cmOptical());
+            telemetry.addData("cm", "%.2f cm", rangeSensor.getDistance(DistanceUnit.CM));
+
+            // Optical Sensor Telemetry
+            telemetry.addData("Raw",    odsSensor.getRawLightDetected());
+            telemetry.addData("Normal", odsSensor.getLightDetected());
+
+            // Vuforia Stuffs
+            for (VuforiaTrackable trackable : allTrackables) {
+                if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
+                    telemetry.update();
+                    inView = true;
+                }
+            }
+
+            telemetry.update();
+        }
+    }
+}
