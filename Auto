@@ -175,10 +175,10 @@ public class Auto extends LinearOpMode {
         if (br < -1) br = -1;
         br = (perct * br);
 
-        leftFront.setPower(perct * lf);
-        leftBack.setPower(perct * bl);
-        rightFront.setPower(perct * rf);
-        rightBack.setPower(perct * br);
+        leftFront.setPower(lf);
+        leftBack.setPower(bl);
+        rightFront.setPower(rf);
+        rightBack.setPower(br);
         telemetry.addData("lf", lf);
         telemetry.addData("bl", bl);
         telemetry.addData("rf", rf);
