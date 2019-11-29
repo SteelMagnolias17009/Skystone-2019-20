@@ -262,10 +262,10 @@ public class FullTeleOP extends OpMode
         /**/
         // servos
         if (a2) {
-            arm.setPosition(.8);
+            arm.setPosition(0.2);
         }
         else {
-            arm.setPosition(0.2);
+            arm.setPosition(.8);
         }
 
         if (lb2) {
