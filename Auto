@@ -95,7 +95,7 @@ public class Auto extends LinearOpMode {
             }
             */
 
-            diagonal(.8, 32, (3*Math.PI)/2);
+           // diagonal(.8, 32, 1.5*Math.PI);
             leftTray.setPosition(0);
             rightTray.setPosition(1);
             diagonal(.8, 32, Math.PI/2);
@@ -153,6 +153,7 @@ public class Auto extends LinearOpMode {
             dir = -1;
         }
         telemetry.addData("theta", theta);
+        telemetry.addData("theta1", theta1);
         telemetry.update();
         double rf = dir * ((theta - (Math.PI / 4)) / (Math.PI / 4));
         if (rf > 1) rf = 1;
@@ -178,6 +179,11 @@ public class Auto extends LinearOpMode {
         leftBack.setPower(perct * bl);
         rightFront.setPower(perct * rf);
         rightBack.setPower(perct * br);
+        telemetry.addData("lf", lf);
+        telemetry.addData("bl", bl);
+        telemetry.addData("rf", rf);
+        telemetry.addData("br", br);
+        telemetry.update();
 
         while(leftFront.isBusy() && opModeIsActive()) {
             //Loop body can be empty
