@@ -1,3 +1,5 @@
+// 19_11.29 FullTeleOP
+
 package org.firstinspires.ftc.teamcode.SteelMagnolias;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -40,6 +42,7 @@ public class FullTeleOP extends OpMode
         // Reverse he motor that runs backwards when connected directly to the battery
         rightFront.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setDirection(DcMotor.Direction.REVERSE);
+        rightLift.setDirection(DcMotor.Direction.REVERSE);
 
         leftTray.setPosition(1);
         rightTray.setPosition(0);
@@ -177,8 +180,8 @@ public class FullTeleOP extends OpMode
         /**/
         // Linear Slides
         if (Math.abs(lefty2) > .1){
-            rightLift.setPower(leftx2 * pow);
-            leftLift.setPower (leftx2 * pow);
+            rightLift.setPower(-lefty2 * pow);
+            leftLift.setPower (-lefty2 * pow);
         } else {
             // stops movement
             leftLift.setPower(0);
@@ -246,13 +249,13 @@ public class FullTeleOP extends OpMode
         }
         if(buttonUp2){
             // slowly moves up
-            leftLift.setPower(pow);
-            rightLift.setPower(pow);
+            leftLift.setPower(-pow);
+            rightLift.setPower(-pow);
         }
         else if(buttonDown2){
             // slowly moves down
-            leftLift.setPower(-pow);
-            rightLift.setPower(-pow);
+            leftLift.setPower(pow);
+            rightLift.setPower(pow);
         }
         else {
             // stops movement
