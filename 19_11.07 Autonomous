@@ -70,7 +70,7 @@ public class AutonomousCode extends LinearOpMode {
         allTrackables.addAll(beacons);
 
         beacons.activate();
-        //
+        // 
 
         waitForStart();
 
