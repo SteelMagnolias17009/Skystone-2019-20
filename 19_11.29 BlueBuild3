@@ -1,0 +1,243 @@
+// 19_11.29 BlueBuild3
+
+package org.firstinspires.ftc.teamcode.SteelMagnolias;
+
+import com.qualcomm.ftcrobotcontroller.R;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.vuforia.HINT;
+import com.vuforia.Vuforia;
+
+import com.qualcomm.robotcore.hardware.ColorSensor;
+
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Autonomous(name="BlueBuild3")
+public class BlueBuild3 extends LinearOpMode {
+
+    //DigitalChannel digitalTouch;  // Hardware Device Object (Touch)
+    //   ModernRoboticsI2cRangeSensor rangeSensor; // Hardware Device Object (Range)
+    // OpticalDistanceSensor odsSensor;
+    private boolean inView = false;
+
+    private DcMotor leftBack;
+    private DcMotor rightBack;
+    private DcMotor leftFront;
+    private DcMotor rightFront;
+    private DcMotor leftLift;
+    private DcMotor rightLift;
+    private Servo arm;
+    private Servo leftTray;
+    private Servo rightTray;
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+
+        leftBack  = hardwareMap.get(DcMotor.class, "leftBack");
+        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+        leftLift  = hardwareMap.get(DcMotor.class, "leftLift");
+        rightLift = hardwareMap.get(DcMotor.class, "rightLift");
+        arm = hardwareMap.servo.get("arm");
+        leftTray = hardwareMap.servo.get("leftTray");
+        rightTray = hardwareMap.servo.get("rightTray");
+
+        /*// Vuforia Declarations:
+        VuforiaLocalizer.Parameters params = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);
+        params.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        params.vuforiaLicenseKey = "AXcJnVv/////AAABmY6RSgPMpkU/gTq/ohM7Dp1GRcTjE+uMBhojoC7ZTX6arz9hkiASgNsqnXAtnVHQ/oEqIBLtfRGbX2xTSYe97drbnYkx2RIoDjiYevKtY96gj17+N5sifH2trQuu+/BOicels1rO1WySfkAiVCChif8XO9PaHCwj7WwlEIY1q2crPQvaokLDDHUr/gIroIy+J8cf33a62WaYAofaGmSn9lS20oHPteQ9EDrDDIyFdIBRmp7aLE/7c6HHEwb00m489jZ1Xkj8P3ixFbbpXnXTujjo2vNpoG1w4bzmNFJ2lyMdwJERuUQzNxbrVxsXj6TU4DCoSSNMo87Kgfyf1sC12ODf5N4qVby7346R3bjtpCoW";
+        params.cameraMonitorFeedback = VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES;
+        telemetry.addData("inVIew", inView);
+
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+        VuforiaLocalizer vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        Vuforia.setHint(HINT.HINT_MAX_SIMULTANEOUS_IMAGE_TARGETS, 5);
+
+        VuforiaTrackables beacons = vuforia.loadTrackablesFromAsset("Skystone");
+        beacons.get(0).setName("TargetElement");
+
+        List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+        allTrackables.addAll(beacons);
+
+        beacons.activate();
+        *///
+
+
+
+        waitForStart();
+
+        // Sensor Data:
+
+        rightFront.setDirection(DcMotor.Direction.REVERSE);
+        rightBack.setDirection(DcMotor.Direction.REVERSE);
+
+            /*
+            // Vuforia Stuffs
+            for (VuforiaTrackable trackable : allTrackables) {
+                if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
+                    inView = true;
+                }
+                .
+            }
+            */
+
+        //diagonal(.8, 32, 1.5*Math.PI);
+
+
+        drive(.8,.8,.8,.8, 800);
+
+        drive(-.8,.8,.8,-.8, 1400);
+
+
+        telemetry.update();
+
+
+
+
+    }
+    public void drive (double lf, double rf, double lb, double rb, int time){
+        leftFront.setPower(lf);
+        rightFront.setPower(rf);
+        leftBack.setPower(lb);
+        rightBack.setPower(rb);
+        sleep(time);
+        leftFront.setPower(0);
+        rightFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
+        sleep(10);
+    }
+    public void driveForwardBack(double speed, double inches, int direction) {
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        waitForStart();
+
+
+        int distance = (int) ((inches * 133.75797) +.5);
+        leftFront.setTargetPosition(distance);
+
+        leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        leftFront.setPower(speed * direction);
+        rightFront.setPower(speed * direction);
+        leftBack.setPower(speed * direction);
+        rightBack.setPower(speed * direction);
+
+        while(leftFront.isBusy() && opModeIsActive()) {
+            //Loop body can be empty
+        }
+
+        leftFront.setPower(0);
+        rightFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
+    }
+
+    public void rotationalMotion(double speed, double degrees, double clock) {
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        waitForStart();
+
+        telemetry.addData("Mode", "running");
+        telemetry.update();
+
+        int encoderDegrees = (int) (degrees*360);
+        leftFront.setTargetPosition(encoderDegrees);
+
+        leftFront.setPower(speed * clock);
+        rightFront.setPower(speed * -clock);
+        leftBack.setPower(speed * clock);
+        rightBack.setPower(speed * -clock);
+
+        leftFront.setPower(0);
+        rightFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
+    }
+    public void diagonal(double perct, double inches, double theta1) {
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        double theta = theta1;
+        waitForStart();
+
+        telemetry.addData("Mode", "running");
+        telemetry.update();
+
+        int distance = (int) ((inches * 133.75797) + .5);
+        leftFront.setTargetPosition(distance);
+
+        leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        double dir = 1;
+        if (theta >= Math.PI) {
+            theta -= Math.PI;
+
+            dir = -1;
+        }
+        telemetry.addData("theta", theta);
+        telemetry.addData("theta1", theta1);
+        telemetry.update();
+        double rf = dir * ((theta - (Math.PI / 4)) / (Math.PI / 4));
+        if (rf > 1) rf = 1;
+        if (rf < -1) rf = -1;
+        rf = (perct * rf);
+
+        double bl = dir * ((theta - (Math.PI / 4)) / (Math.PI / 4));
+        if (bl > 1) bl = 1;
+        if (bl < -1) bl = -1;
+        bl = (perct * bl);
+
+        double lf = -dir * ((theta - (3 * Math.PI / 4)) / (Math.PI / 4));
+        if (lf > 1) lf = 1;
+        if (lf < -1) lf = -1;
+        lf = (perct * lf);
+
+        double br = -dir * ((theta - (3 * Math.PI / 4)) / (Math.PI / 4));
+        if (br > 1) br = 1;
+        if (br < -1) br = -1;
+        br = (perct * br);
+
+        leftFront.setPower(lf);
+        leftBack.setPower(bl);
+        rightFront.setPower(rf);
+        rightBack.setPower(br);
+        telemetry.addData("lf", lf);
+        telemetry.addData("bl", bl);
+        telemetry.addData("rf", rf);
+        telemetry.addData("br", br);
+        telemetry.update();
+
+        while(leftFront.isBusy() && opModeIsActive()) {
+            //Loop body can be empty
+        }
+
+        leftFront.setPower(0);
+        leftBack.setPower(0);
+        rightFront.setPower(0);
+        rightBack.setPower(0);
+    }
+}
