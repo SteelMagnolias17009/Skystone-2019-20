@@ -28,8 +28,8 @@ import java.util.List;
 public class AutonomousCode extends LinearOpMode {
 
     //DigitalChannel digitalTouch;  // Hardware Device Object (Touch)
- //   ModernRoboticsI2cRangeSensor rangeSensor; // Hardware Device Object (Range)
-   // OpticalDistanceSensor odsSensor;
+    // ModernRoboticsI2cRangeSensor rangeSensor; // Hardware Device Object (Range)
+    // OpticalDistanceSensor odsSensor;
     private boolean inView = false;
 
     private DcMotor leftBack;
