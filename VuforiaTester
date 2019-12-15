@@ -1,0 +1,41 @@
+package org.firstinspires.ftc.teamcode.SteelMagnolias;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import com.qualcomm.ftcrobotcontroller.R;
+
+@Autonomous(name = "VuforiaTester")
+public class VuforiaTester extends LinearOpMode {
+    VuforiaLocalizer vuforiaLocalizer;
+    VuforiaLocalizer.Parameters param;
+    VuforiaTrackables beacons;
+    VuforiaTrackable target;
+    VuforiaTrackableDefaultListener listener;
+
+    OpenGLMatrix lastKnownLocation;
+
+    public static final String VUFORIA_KEY = "Ae/tYNP/////AAABmWJ3jgvBrksYtYG8QcdbeqRWGQWezSnxje7FgEIzwTeFQ1hZ42y6YmaQ0h5p7aqN9x+q1QXf2zRRrh1Pxln3C2cR+ul6r9mHwHbTRgd3jyggk8tzc/ubgaPBdn1q+ufcYqCk6tqj7t8JNYM/UHLZjtpSQrr5RNVs227kQwBoOx6l4MLqWL7TCTnE2vUjgrHaEW1sP1hBsyf1D4SiyRl/Ab1Vksqkgv7hwR1c7J4+7+Nt3rDd16Fr2XToT87t0JlfOn6vszaPj10qvU7836U+/rx9cs1w53UPEdfF+AmDChhdW2TymZf+aS2QfnckyxdXKHjXUhdDw3f09BegsNdnVxXnvGkp0jhg9N7fjJa39k+8";
+
+    public void runOpMode() throws InterruptedException {
+        waitForStart();
+
+        while (opModeIsActive()) {
+            telemetry.update();
+            idle();
+        }
+    }
+
+    public void setUp() {
+        param = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);
+        param.vuforiaLicenseKey = VUFORIA_KEY;
+        param.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        vuforiaLocalizer = ClassFactory.createVuforiaLocalizer(param);
+    }
+}
