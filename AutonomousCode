@@ -54,8 +54,8 @@ public class AutonomousCode extends LinearOpMode {
         // set the digital channel to input.
         //digitalTouch.setMode(DigitalChannel.Mode.INPUT);
 
-  //      rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "sensor_range");
-   //     odsSensor = hardwareMap.get(OpticalDistanceSensor.class, "sensor_ods");
+        //rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "sensor_range");
+        //odsSensor = hardwareMap.get(OpticalDistanceSensor.class, "sensor_ods");
 
         waitForStart();
 
@@ -76,14 +76,14 @@ public class AutonomousCode extends LinearOpMode {
             }*/
 
             // Range Sensor Telemetry
-     //       telemetry.addData("raw ultrasonic", rangeSensor.rawUltrasonic());
-     //       telemetry.addData("raw optical", rangeSensor.rawOptical());
-     //       telemetry.addData("cm optical", "%.2f cm", rangeSensor.cmOptical());
-       //     telemetry.addData("cm", "%.2f cm", rangeSensor.getDistance(DistanceUnit.CM));
+            //telemetry.addData("raw ultrasonic", rangeSensor.rawUltrasonic());
+            //telemetry.addData("raw optical", rangeSensor.rawOptical());
+            //telemetry.addData("cm optical", "%.2f cm", rangeSensor.cmOptical());
+            //telemetry.addData("cm", "%.2f cm", rangeSensor.getDistance(DistanceUnit.CM));
 
             // Optical Sensor Telemetry
-         //   telemetry.addData("Raw", odsSensor.getRawLightDetected());
-           // telemetry.addData("Normal", odsSensor.getLightDetected());
+            //telemetry.addData("Raw", odsSensor.getRawLightDetected());
+            // telemetry.addData("Normal", odsSensor.getLightDetected());
 
             // Color Sensor
             //telemetry.addData("Seeing Red", frontColor.red() > cc);
