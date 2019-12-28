@@ -1,0 +1,204 @@
+package org.firstinspires.ftc.teamcode.SteelMagnolias;
+
+import com.qualcomm.ftcrobotcontroller.R;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+import com.vuforia.HINT;
+import com.vuforia.Vuforia;
+
+import com.qualcomm.robotcore.hardware.ColorSensor;
+
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Autonomous(name="Autonomous Code")
+public class AutonomousCode extends LinearOpMode {
+
+    //DigitalChannel digitalTouch;  // Hardware Device Object (Touch)
+ //   ModernRoboticsI2cRangeSensor rangeSensor; // Hardware Device Object (Range)
+   // OpticalDistanceSensor odsSensor;
+    private boolean inView = false;
+
+    private DcMotor leftBack;
+    private DcMotor rightBack;
+    private DcMotor leftFront;
+    private DcMotor rightFront;
+
+//    private ColorSensor frontColor;
+//    private ColorSensor backColor;
+//    private int cc = (frontColor.red() / frontColor.blue()) * (frontColor.green() / frontColor.blue());
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+
+        leftBack  = hardwareMap.get(DcMotor.class, "leftBack");
+        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+
+        // get a reference to our digitalTouch object.
+        //digitalTouch = hardwareMap.get(DigitalChannel.class, "sensor_digital");
+        // set the digital channel to input.
+        //digitalTouch.setMode(DigitalChannel.Mode.INPUT);
+
+  //      rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "sensor_range");
+   //     odsSensor = hardwareMap.get(OpticalDistanceSensor.class, "sensor_ods");
+
+        waitForStart();
+
+        // Sensor Data:
+        while (opModeIsActive()) {
+            leftBack = hardwareMap.get(DcMotor.class, "leftBack");
+            rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+            leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+            rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+
+            rightFront.setDirection(DcMotor.Direction.REVERSE);
+            rightBack.setDirection(DcMotor.Direction.REVERSE);
+
+            /*if (digitalTouch.getState() == true) {
+                telemetry.addData("Digital Touch", "Is Not Pressed");
+            } else {
+                telemetry.addData("Digital Touch", "Is Pressed");
+            }*/
+
+            // Range Sensor Telemetry
+     //       telemetry.addData("raw ultrasonic", rangeSensor.rawUltrasonic());
+     //       telemetry.addData("raw optical", rangeSensor.rawOptical());
+     //       telemetry.addData("cm optical", "%.2f cm", rangeSensor.cmOptical());
+       //     telemetry.addData("cm", "%.2f cm", rangeSensor.getDistance(DistanceUnit.CM));
+
+            // Optical Sensor Telemetry
+         //   telemetry.addData("Raw", odsSensor.getRawLightDetected());
+           // telemetry.addData("Normal", odsSensor.getLightDetected());
+
+            // Color Sensor
+            //telemetry.addData("Seeing Red", frontColor.red() > cc);
+            //telemetry.addData("Seeing Blue", frontColor.blue() > cc);
+            //telemetry.addData("Seeing Red", backColor.red() > cc);
+            //telemetry.addData("Seeing Blue", backColor.blue() > cc);
+
+            telemetry.update();
+        }
+    }
+
+
+    public void driveFowardBack(double speed, double inches, int direction) {
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        waitForStart();
+
+        telemetry.addData("Mode", "running");
+        telemetry.update();
+
+        int distance = (int) ((inches * 133.75797) +.5);
+        leftFront.setTargetPosition(distance);
+
+        leftFront.setPower(speed * direction);
+        rightFront.setPower(speed * direction);
+        leftBack.setPower(speed * direction);
+        rightBack.setPower(speed * direction);
+
+        while(leftFront.isBusy() && opModeIsActive()) {
+            //Loop body can be empty
+        }
+
+        leftFront.setPower(0);
+        rightFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
+    }
+    public void rotationalMotion(double speed, double degrees, double clock) {
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        waitForStart();
+
+        telemetry.addData("Mode", "running");
+        telemetry.update();
+
+        int encoderDegrees = (int) (degrees*360);
+        leftFront.setTargetPosition(encoderDegrees);
+
+        leftFront.setPower(speed * clock);
+        rightFront.setPower(speed * -clock);
+        leftBack.setPower(speed * clock);
+        rightBack.setPower(speed * -clock);
+
+        leftFront.setPower(0);
+        rightFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
+    }
+    public void diagonal(double perct, double inches, double theta) {
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        waitForStart();
+
+        telemetry.addData("Mode", "running");
+        telemetry.update();
+
+        int distance = (int) ((inches * 133.75797) + .5);
+        leftFront.setTargetPosition(distance);
+
+        double dir = 1;
+        if (theta >= Math.PI) {
+            theta -= Math.PI;
+
+            dir = -1;
+        }
+        double rf = dir * ((theta - (Math.PI / 4)) / (Math.PI / 4));
+        if (rf > 1) rf = 1;
+        if (rf < -1) rf = -1;
+        rf = (perct * rf);
+
+        double bl = dir * ((theta - (Math.PI / 4)) / (Math.PI / 4));
+        if (bl > 1) bl = 1;
+        if (bl < -1) bl = -1;
+        bl = (perct * bl);
+
+        double lf = -dir * ((theta - (3 * Math.PI / 4)) / (Math.PI / 4));
+        if (lf > 1) lf = 1;
+        if (lf < -1) lf = -1;
+        lf = (perct * lf);
+
+        double br = -dir * ((theta - (3 * Math.PI / 4)) / (Math.PI / 4));
+        if (br > 1) br = 1;
+        if (br < -1) br = -1;
+        br = (perct * br);
+
+        leftFront.setPower(perct * lf);
+        leftBack.setPower(perct * bl);
+        rightFront.setPower(perct * br);
+        rightBack.setPower(perct * rf);
+
+        leftFront.setPower(0);
+        leftBack.setPower(0);
+        rightFront.setPower(0);
+        rightBack.setPower(0);
+    }
+}
