@@ -1,0 +1,40 @@
+package org.firstinspires.ftc.teamcode;
+
+
+import com.disnodeteam.dogecv.detectors.skystone.SkystoneDetector;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvInternalCamera;
+
+import java.util.Locale;
+
+@TeleOp(name = "SkystoneDetector OpMode", group = "DogeCV")
+
+public class SkystoneDetectionOpMode extends LinearOpMode {
+    private OpenCvCamera webcam;
+    private SkystoneDetector skyStoneDetector;
+
+    @Override
+    public void runOpMode() {
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        webcam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+
+        webcam.openCameraDevice();
+
+        skyStoneDetector = new SkystoneDetector();
+        webcam.setPipeline(skyStoneDetector);
+
+        webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+
+        waitForStart();
+
+        while(opModeIsActive()) {
+            telemetry.addData("Stone Position X", skyStoneDetector.getScreenPosition().x);
+            telemetry.addData("Stone Position Y", skyStoneDetector.getScreenPosition().y);
+            telemetry.update();
+        }
+    }
+}
