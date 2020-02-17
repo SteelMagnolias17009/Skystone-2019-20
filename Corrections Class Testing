@@ -1,0 +1,505 @@
+// 19_11.29 FullTeleOP
+
+package org.firstinspires.ftc.teamcode.SteelMagnolias;
+
+import android.graphics.Color;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
+
+
+@TeleOp(name="FullTeleOP")
+public class FullTeleOP extends OpMode
+{
+    private DcMotor leftBack;
+    private DcMotor rightBack;
+    private DcMotor leftFront;
+    private DcMotor rightFront;
+    private DcMotor leftLift;
+    private DcMotor rightLift;
+    private Servo arm;
+    private Servo leftTray;
+    private Servo rightTray;
+    private Servo flip;
+    private double liftCount;
+    private boolean blueUp;
+    private boolean blueDown;
+    private boolean yellowUp;
+    private boolean yellowDown;
+    private double moveBlueUp;
+    private double moveBlueDown;
+    private double moveYellowUp;
+    private double moveYellowDown;
+    private ColorSensor colorSensor;
+    private Corrections cMBU;
+    private Corrections cMBD;
+    private Corrections cMYU;
+    private Corrections cMYD;
+    @Override
+    public void init() {
+        telemetry.addData("Status", "Initialized");
+
+        // Initialize the hardware variables. Note that the strings used here as parameters
+        // to 'get' must correspond to the names assigned during the robot configuration
+        // step (using the FTC Robot Controller app on the phone).
+        leftBack  = hardwareMap.get(DcMotor.class, "leftBack");
+        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+        leftLift  = hardwareMap.get(DcMotor.class, "leftLift");
+        rightLift = hardwareMap.get(DcMotor.class, "rightLift");
+        arm = hardwareMap.servo.get("arm");
+        flip = hardwareMap.servo.get("flip");
+        leftTray = hardwareMap.servo.get("leftTray");
+        rightTray = hardwareMap.servo.get("rightTray");
+        colorSensor = hardwareMap.get(ColorSensor.class, "colorSensor");
+
+        // Most robots need the motor on one side to be reversed to drive forward
+        // Reverse the motor that runs backwards when connected directly to the battery
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
+        leftBack.setDirection(DcMotor.Direction.REVERSE);
+        rightLift.setDirection(DcMotor.Direction.REVERSE);
+
+        leftTray.setPosition(1);
+        rightTray.setPosition(0);
+        flip.setPosition(1);
+
+        liftCount = 0;
+        blueUp = false;
+        blueDown = false;
+        yellowUp = false;
+        yellowDown = false;
+        moveBlueUp = 0;
+        moveBlueDown = 0;
+        moveYellowUp = 0;
+        moveYellowDown = 0;
+
+        // Tell the driver that initialization is complete.
+        telemetry.addData("Status", "Initialized");
+    }
+
+    /*
+     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
+     */
+    @Override
+    public void init_loop() {
+
+    }
+
+    @Override
+    public void loop()
+    {
+        float[] hsv = {0F, 0F, 0F};
+        final float values[] = hsv;
+
+        Color.RGBToHSV((int) colorSensor.red() * 255, (int)  colorSensor.green() * 255, (int) colorSensor.blue() * 255, hsv);
+
+        double lefty1 = -(gamepad1.left_stick_y);
+        double leftx1 = gamepad1.left_stick_x;
+        double rightx1 = gamepad1.right_stick_x;
+        boolean buttonUp = gamepad1.dpad_up;
+        boolean buttonDown = gamepad1.dpad_down;
+        boolean buttonUp2 = gamepad2.dpad_up;
+        boolean buttonDown2 = gamepad2.dpad_down;
+        boolean buttonLeft = gamepad1.dpad_left;
+        boolean buttonRight = gamepad1.dpad_right;
+        boolean buttonLeft2 = gamepad2.dpad_left;
+        boolean buttonRight2 = gamepad2.dpad_right;
+        boolean lb1 = gamepad1.left_bumper;
+        boolean rb1 = gamepad1.right_bumper;
+        boolean lb2 = gamepad2.left_bumper;
+        boolean rb2 = gamepad2.right_bumper;
+        double leftx2 = gamepad2.left_stick_x;
+        double lefty2 = -(gamepad2.left_stick_y);
+        boolean a2 = gamepad2.a;
+        boolean b2 = gamepad2.b;
+        boolean y2 = gamepad2.y;
+        boolean x2 = gamepad2.x;
+        boolean a1 = gamepad1.a;
+        telemetry.addData("lefty1", lefty1);
+        telemetry.addData("leftx1", leftx1);
+        telemetry.addData("rightx1", rightx1);
+        telemetry.addData("lefty1", lefty1);
+        telemetry.addData("lefty2", lefty2);
+        telemetry.addData("leftx1", leftx1);
+        telemetry.addData("rightx1", rightx1);
+        telemetry.addData("buttonUp", buttonUp);
+        telemetry.addData("buttonDown", buttonDown);
+        telemetry.addData("buttonUp2", buttonUp2);
+        telemetry.addData("buttonDown2", buttonDown2);
+        telemetry.addData("buttonRight", buttonRight);
+        telemetry.addData("buttonLeft", buttonLeft);
+        telemetry.addData("lb1", lb1);
+        telemetry.addData("rb1", rb1);
+        telemetry.addData("lb2", lb2);
+        telemetry.addData("rb2", rb2);
+        telemetry.addData("a2", a2);
+        telemetry.addData("a1", a1);
+        telemetry.addData("b2", b2);
+        telemetry.addData("Hue", hsv[0]);
+        telemetry.addData("liftCount", liftCount);
+        telemetry.addData("Skystone", !(hsv[0] <= 85 && hsv[0] >= 50));
+        // telemetry yellow, blue, red, and green
+        /**/
+
+        double rm = rightx1;
+        if (rm > -.1 && rm < .1) rm = 0;
+        double pow = .8;
+        if (a1) pow = 1;
+        double c = Math.hypot(leftx1,lefty1);
+        double perct = pow * c;
+        if (c <= .1) perct = 0;
+        double theta;
+
+        if (leftx1 <=0 && lefty1 >= 0 )  {
+            theta = Math.atan(Math.abs(leftx1)/Math.abs(lefty1));
+            theta += (Math.PI/2);
+        } else
+        if (leftx1 <0 && lefty1 <= 0 )  {
+            theta = Math.atan(Math.abs(lefty1)/Math.abs(leftx1));
+            theta += (Math.PI);
+        } else
+        if (leftx1 >= 0 && lefty1 < 0 )  {
+            theta = Math.atan(Math.abs(leftx1)/Math.abs(lefty1));
+            theta += (3*Math.PI/2);
+        } else {
+            theta = Math.atan(Math.abs(lefty1)/Math.abs(leftx1));
+        }
+
+        double dir = 1;
+        if (theta >= Math.PI) {
+            theta -= Math.PI;
+
+            dir = -1;
+        }
+        //if (leftx1 <= 0 && lefty1 >= 0 || leftx1 >= 0 && lefty1 <= 0){
+        //   theta += (Math.PI/2);
+        //}
+
+        telemetry.addData("pow", pow);
+        telemetry.addData("rm", rm);
+        telemetry.addData("dir", dir);
+        telemetry.addData("c", c);
+        telemetry.addData("theta", theta);
+
+        double fr = dir*((theta-(Math.PI/4))/(Math.PI/4));
+        if (fr > 1) fr = 1;
+        if(fr < -1) fr = -1;
+        fr = (perct * fr);
+        if (leftx1 == 0 && lefty1 == 0) fr = 0;
+
+        double bl = dir*((theta-(Math.PI/4))/(Math.PI/4));
+        if (bl > 1) bl = 1;
+        if (bl < -1) bl = -1;
+        bl = (perct * bl);
+        if (leftx1 < .1 && leftx1 > -.1 && lefty1 < .1 && lefty1 > -.1) bl = 0;
+
+        double fl = -dir*((theta-(3*Math.PI/4))/(Math.PI/4));
+        if (fl > 1) fl = 1;
+        if (fl < -1) fl = -1;
+        fl = (perct * fl);
+        if (leftx1 < .1 && leftx1 > -.1 && lefty1 < .1 && lefty1 > -.1) fl = 0;
+
+        double br = -dir*((theta-(3*Math.PI/4))/(Math.PI/4));
+        if (br > 1) br = 1;
+        if (br < -1) br = -1;
+        br = (perct * br);
+        if (leftx1 < .1 && leftx1 > -.1 && lefty1 < .1 && lefty1 > -.1) br = 0;
+
+        telemetry.addData("fl", fl);
+        telemetry.addData("fr", fr);
+        telemetry.addData("bl", bl);
+        telemetry.addData("br", br);
+
+        telemetry.addData("rlf", -dir*((theta-(3*Math.PI/4))/(Math.PI/4)));
+        telemetry.addData("rrf", dir*((theta-(3*Math.PI/4))/(Math.PI/4)));
+        telemetry.addData("rbl", dir*((theta-(3*Math.PI/4))/(Math.PI/4)) );
+        telemetry.addData("rbr", -dir*((theta-(3*Math.PI/4))/(Math.PI/4)));
+
+        leftFront.setPower(fl + (rightx1*.5));
+        leftBack.setPower(bl + (rightx1*.5));
+        rightFront.setPower(fr - (rightx1*.5));
+        rightBack.setPower(br - (rightx1*.5));
+        /**/
+        // Linear Slides
+        boolean access = false;
+        if (Math.abs(lefty2) > .1){
+            access = true;
+            rightLift.setPower(-lefty2 * pow);
+            leftLift.setPower (-lefty2 * pow);
+            liftCount += lefty2*pow;
+        } else {
+            // stops movement
+            leftLift.setPower(0);
+            rightLift.setPower (0);
+        }
+        telemetry.addData("access", access);
+        /**/
+
+        // Below: precision (slower) movement
+        pow *= 0.5;
+        if(buttonUp){
+            // slowly moves forwards
+            leftFront.setPower(pow);
+            leftBack.setPower(pow);
+            rightFront.setPower(pow);
+            rightBack.setPower(pow);
+        }
+        else if(buttonDown){
+            // slowly moves backwards
+            leftFront.setPower(-pow);
+            leftBack.setPower(-pow);
+            rightFront.setPower(-pow);
+            rightBack.setPower(-pow);
+        }
+        else if(rb1){
+            // slowly moves clockwise
+            leftFront.setPower(pow);
+            leftBack.setPower (pow);
+            rightFront.setPower (-pow);
+            rightBack.setPower(-pow);
+        }
+        else if(lb1){
+            // slowly moves counter-clockwise
+            leftFront.setPower(-pow);
+            leftBack.setPower (-pow);
+            rightFront.setPower (pow);
+            rightBack.setPower(pow);
+        }
+        else {
+            // stops movement
+            leftFront.setPower(0);
+            leftBack.setPower(0);
+            rightFront.setPower(0);
+            rightBack.setPower(0);
+        }
+        if(buttonRight){
+            // slowly moves right
+            leftFront.setPower(pow);
+            leftBack.setPower (-pow);
+            rightFront.setPower (-pow);
+            rightBack.setPower(pow);
+        }
+        else if(buttonLeft){
+            // slowly moves left
+            leftFront.setPower(-pow);
+            leftBack.setPower (pow);
+            rightFront.setPower (pow);
+            rightBack.setPower(-pow);
+        }
+        else {
+            // stops movement
+            leftFront.setPower(0);
+            leftBack.setPower(0);
+            rightFront.setPower(0);
+            rightBack.setPower(0);
+        }
+        if(buttonUp2){
+            // slowly moves up
+            leftLift.setPower(-pow);
+            rightLift.setPower(-pow);
+            liftCount += pow;
+        }
+        else if(buttonDown2){
+            // slowly moves down
+            leftLift.setPower(pow);
+            rightLift.setPower(pow);
+            liftCount -= pow;
+        }
+        else {
+            // stops movement
+            leftLift.setPower(0);
+            rightLift.setPower(0);
+        }
+        /**/
+        // servos
+        if (buttonLeft2) {
+            arm.setPosition(0.8);
+        } else {
+            arm.setPosition(.2);
+        }
+
+        if (lb2) {
+            leftTray.setPosition(1);
+        }
+        else {
+            leftTray.setPosition(0);
+        }
+        if (buttonRight2) {
+            flip.setPosition(0);
+        }
+        else {
+           flip.setPosition(1);
+        }
+        if (rb2) {
+            rightTray.setPosition(0);
+        }
+        else {
+            rightTray.setPosition(1);
+        }
+
+        double[][] arraySystem = {{0, 10, 20, 30, 40, 50, 60, 70, 80},
+                {1, 11, 21, 31, 41, 51, 61, 71, 81}};
+        if (       liftCount == arraySystem[0][0]
+                || liftCount == arraySystem[0][1]
+                || liftCount == arraySystem[0][2]
+                || liftCount == arraySystem[0][3]
+                || liftCount == arraySystem[0][4]
+                || liftCount == arraySystem[0][5]
+                || liftCount == arraySystem[0][6]
+                || liftCount == arraySystem[0][7]
+                || liftCount == arraySystem[0][8])
+        {
+            //blue light
+        }
+        if (       liftCount == arraySystem[1][0]
+                || liftCount == arraySystem[1][1]
+                || liftCount == arraySystem[1][2]
+                || liftCount == arraySystem[1][3]
+                || liftCount == arraySystem[1][4]
+                || liftCount == arraySystem[1][5]
+                || liftCount == arraySystem[1][6]
+                || liftCount == arraySystem[1][7]
+                || liftCount == arraySystem[1][8]) {
+            //yellow light
+        }
+
+        if (x2) {
+            blueUp = true;
+            moveBlueUp = findBlueUp(arraySystem, liftCount);
+            cMBU = new Corrections(moveBlueUp);
+        }
+        if (blueUp && liftCount <= moveBlueUp) {
+            leftLift.setPower(-.8);
+            rightLift.setPower(-.8);
+            liftCount += .8;
+        } else {
+            if (blueUp && cMBU.shouldMove(liftCount)){
+                leftLift.setPower(cMBU.findPower(liftCount));
+                rightLift.setPower(cMBU.findPower(liftCount));
+            } else {
+                leftLift.setPower(0);
+                rightLift.setPower(0);
+                blueUp = false;
+            }
+        }
+        if (b2) {
+            blueDown = true;
+            moveBlueDown = findBlueDown(arraySystem, liftCount);
+            cMBD = new Corrections(moveBlueDown);
+        }
+        if (blueDown && liftCount >= moveBlueDown) {
+            leftLift.setPower(.8);
+            rightLift.setPower(.8);
+            liftCount -= .8;
+        } else {
+            if (blueDown && cMBD.shouldMove(liftCount)){
+                leftLift.setPower(cMBD.findPower(liftCount));
+                rightLift.setPower(cMBD.findPower(liftCount));
+            } else {
+                leftLift.setPower(0);
+                rightLift.setPower(0);
+                blueDown = false;
+            }
+        }
+        if (y2) {
+            yellowUp = true;
+            moveYellowUp = findYellowUp(arraySystem, liftCount);
+            cMYU = new Corrections(moveYellowUp);
+        }
+        if (yellowUp && liftCount <= moveYellowUp) {
+            leftLift.setPower(-.8);
+            rightLift.setPower(-.8);
+            liftCount += .8;
+        } else {
+            if (yellowUp && cMYU.shouldMove(liftCount)){
+                leftLift.setPower(cMYU.findPower(liftCount));
+                rightLift.setPower(cMYU.findPower(liftCount));
+            } else {
+                leftLift.setPower(0);
+                rightLift.setPower(0);
+                yellowUp = false;
+            }
+        }
+        if (a2) {
+            yellowDown = true;
+            moveYellowDown = findYellowDown(arraySystem, liftCount);
+            cMYD = new Corrections(moveYellowDown);
+        }
+        if (yellowDown && liftCount >= moveYellowDown) {
+            leftLift.setPower(.8);
+            rightLift.setPower(.8);
+            liftCount -= .8;
+        } else {
+            if (yellowDown && cMYD.shouldMove(liftCount)){
+                leftLift.setPower(cMYD.findPower(liftCount));
+                rightLift.setPower(cMYD.findPower(liftCount));
+            } else {
+                leftLift.setPower(0);
+                rightLift.setPower(0);
+                yellowDown = false;
+            }
+        }
+        /*if (a1) {
+            inLine = false;
+        }
+        if (/*!inLine /*&& !touch) {
+            leftLift.setPower(-.8);
+            rightLift.setPower(-.8);
+            liftCount -= .8;
+        } else {
+            leftLift.setPower(0);
+            rightLift.setPower(0);
+            yellowDown = false;
+        }
+
+        if (/*touch/) {
+            // green light
+        }*/
+
+        /**/
+        telemetry.addData("findBlueDown", findBlueDown(arraySystem, liftCount));
+        telemetry.update();
+    }
+    @Override
+    public void stop() {
+    }
+
+    public double findBlueUp(double[][] arr, double liftCount) {
+        for (int i = 0; i < arr[0].length; i++)
+        {
+            if ((arr[0][i] - liftCount) > 0) return arr[0][i];
+        }
+        return arr[0][arr[0].length - 1];
+    }
+
+    public double findBlueDown(double[][] arr, double liftCount) {
+        for (int i = arr[0].length-1; i >= 0; i--)
+        {
+            if ((liftCount - arr[0][i]) > 0) return arr[0][i];
+        }
+        return arr[0][arr[0].length - 1];
+    }
+
+    public double findYellowUp(double[][] arr, double liftCount) {
+        for (int i = 0; i < arr[1].length; i++)
+        {
+            if ((arr[1][i] - liftCount) > 0) return arr[1][i];
+        }
+        return arr[1][arr[1].length - 1];
+    }
+
+    public double findYellowDown(double[][] arr, double liftCount) {
+        for (int i = arr[1].length-1; i >= 0; i--)
+        {
+            if ((liftCount - arr[1][i]) > 0) return arr[1][i];
+        }
+        return arr[1][arr[1].length - 1];
+    }
+}
+
+// x = up to next blue; b = down to next blue
+// y = up to next yellow; a = down to next yellow
