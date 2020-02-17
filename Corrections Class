@@ -1,0 +1,72 @@
+package org.firstinspires.ftc.teamcode.SteelMagnolias;
+
+/** CORRECTIONS CLASS:
+ * This class is intended to correct motor position
+ * based off our TeleOp's "to-level" system, which
+ * allows the driver to push a button and have the
+ * robot automatically move its lift system to the
+ * proper level, defined in double[][] arraySystem.
+ * We do this through double liftCount, which holds
+ * the position the lift system is at. It acts as a
+ * psuedo encoder. It tracks the position by adding
+ * or subtracting the power of leftLift and rightLift
+ * relative to the positive/negative changes made for
+ * motor direction. To get the target position (the
+ * next level up or down, blue (arraySystem[0]) or
+ * yellow (arraySystem[1]) It moves by setting motor
+ * power to .8 then moving up or down until it the
+ * position is >= or <= respectively. However, this
+ * means liftCount can only jump in increments of .8,
+ * so when you have 10 decimal places from using the
+ * the joystick you have no way to hit the target
+ * exactly. This class is used to move the position
+ * exactly to the target after is has moved there
+ * with the .8 increments.
+ *
+ * Why not use this class for all of it?
+ * Why not get rid of the .8 increments entirely?
+ *      Our lift system can not handle full-speed
+ *      movements for more than a second or so.
+ */
+
+public class Corrections
+{
+    private double target;
+
+    public Corrections(double target)
+    {
+        this.target = target;
+    }
+    // target = moveBlueUp, moveBlueDown, moveYellowUp, or moveYellowDown
+
+    public double findPower(double liftCount)
+    {
+        return target - liftCount;
+    }
+    /* If this returns a number greater than 1,
+     * the motors will round down, so no if-else
+     * statements or preconditions are neccessary.
+     * Instead, the TeleOp will have to repeat
+     * the call to this method.
+     */
+
+    public boolean shouldMove(double liftCount)
+    {
+        if (liftCount == target)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    /* Use this to determine whether or not findPower()
+     * should be called. If findPower() returns zero,
+     * the motor power will be set to zero and the
+     * motors will stall, regardless of movements via
+     * the d-pad and the joystick. In order to avoid
+     * this, the TeleOp will check in the else statement
+     * whether or not it needs to move the motors.
+     */
+}
